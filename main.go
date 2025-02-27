@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -13,30 +12,27 @@ func main() {
 	if err != nil {
 		log.Fatalf("error reading config: %v", err)
 	}
-	fmt.Printf("Read config: %+v\n", cfg)
 
-	state := state{cfg: &cfg}
+	programState := &state{
+		cfg: &cfg,
+	}
 
 	cmds := commands{
-		handlerMap: make(map[string]handler),
+		registeredCommands: make(map[string]handler),
+	}
+	cmds.register("login", handlerLogin)
+
+	if len(os.Args) < 2 {
+		log.Fatal("Usage: cli <command> [args...]")
+		return
 	}
 
-	cmds.handlerMap["login"] = handlerLogin // Register login command
+	cmdName := os.Args[1]
+	cmdArgs := os.Args[2:]
 
-	cliArgs := os.Args
-	if len(cliArgs) < 2 {
-		log.Fatalf("not enough arguments supplied")
-	}
-
-	cmd := command{
-		name: cliArgs[1],
-		args: cliArgs[2:],
-	}
-	fmt.Printf("Command: %+v\n", cmd)
-
-	err = cmds.run(&state, cmd)
+	err = cmds.run(programState, command{Name: cmdName, Args: cmdArgs})
 	if err != nil {
-		log.Fatalf("%v", err)
+		log.Fatal(err)
 	}
 
 }

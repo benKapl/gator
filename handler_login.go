@@ -1,22 +1,20 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 )
 
 func handlerLogin(s *state, cmd command) error {
-	if len(cmd.args) == 0 {
-		return errors.New("no username specified")
+	if len(cmd.Args) != 1 {
+		return fmt.Errorf("usage: %s <name>", cmd.Name)
 	}
+	name := cmd.Args[0]
 
-	userName := cmd.args[0]
-
-	err := s.cfg.SetUser(userName)
+	err := s.cfg.SetUser(name)
 	if err != nil {
-		return err
+		return fmt.Errorf("couldn't set current user: %w", err)
 	}
 
-	fmt.Printf("%s is logged in\n", userName)
+	fmt.Println("User switched successfully!")
 	return nil
 }
