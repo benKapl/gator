@@ -4,10 +4,20 @@ import (
 	"fmt"
 
 	"github.com/benKapl/gator/internal/config"
-	// "os"
 )
 
 func main() {
-	fmt.Println(config.GetConfigFilePath())
+	cfg, err := config.Read()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	cfg.SetUser("Ben")
+
+	cfg, err = config.Read()
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Printf("%+v\n", cfg)
 
 }
