@@ -5,15 +5,14 @@ import (
 	"fmt"
 )
 
-type (
-	command struct {
-		Name string
-		Args []string
-	}
-	commands struct {
-		registeredCommands map[string]func(*state, command) error
-	}
-)
+type command struct {
+	Name string
+	Args []string
+}
+
+type commands struct {
+	registeredCommands map[string]func(*state, command) error
+}
 
 func (c *commands) register(name string, f func(*state, command) error) error {
 	if _, exists := c.registeredCommands[name]; exists {
