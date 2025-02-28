@@ -39,7 +39,18 @@ func handlerAddFeed(s *state, cmd command) error {
 	fmt.Println("=====================================")
 
 	return nil
+}
 
+func handlerListFeeds(s *state, cmd command) error {
+	feeds, err := s.db.GetFeeds(context.Background())
+	if err != nil {
+		return fmt.Errorf("couldn't retrieve feeds list: %w", err)
+	}
+
+	for _, feed := range feeds {
+		fmt.Printf("* %v\n", feed.Name)
+	}
+	return nil
 }
 
 func printFeed(feed database.Feed) {
