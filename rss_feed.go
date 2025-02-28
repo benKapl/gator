@@ -42,27 +42,28 @@ func fetchFeed(ctx context.Context, feedUrl string) (*RSSFeed, error) {
 
 	defer resp.Body.Close()
 
-	rssfeed := &RSSFeed{}
+	var rssfeed RSSFeed
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("error reading response body %w", err)
 	}
 
-	err = xml.Unmarshal(data, rssfeed)
+	err = xml.Unmarshal(data, &rssfeed)
 	if err != nil {
 		return nil, fmt.Errorf("error decoding xml %w", err)
 	}
-	// return rssfeed, nil
-	return cleanFeed(rssfeed), nil
+
+	return cleanFeed(&rssfeed), nil
 }
 
 func cleanFeed(feed *RSSFeed) *RSSFeed {
 	feed.Channel.Title = html.UnescapeString(feed.Channel.Title)
 	feed.Channel.Description = html.UnescapeString(feed.Channel.Description)
 
-	for i := 0; i < len(feed.Channel.Item); i++ {
-		feed.Channel.Item[i].Title = html.UnescapeString(feed.Channel.Item[i].Title)
-		feed.Channel.Item[i].Description = html.UnescapeString(feed.Channel.Item[i].Description)
+	for i, item := range feed.Channel.Item {
+		item.Title = html.UnescapeString(item.Title)
+		item.Description = html.UnescapeString(item.Description)
+		feed.Channel.Item[i] = item
 	}
 	return feed
 }

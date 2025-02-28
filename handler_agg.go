@@ -8,13 +8,9 @@ import (
 func handlerAgg(s *state, cmd command) error {
 	feed, err := fetchFeed(context.Background(), "https://www.wagslane.dev/index.xml")
 	if err != nil {
-		return err
+		return fmt.Errorf("couldn't fetch feed: %w", err)
 	}
-	// for _, item := range feed.Channel.Item {
-	// fmt.Printf("* Item: %v\n", item.Title)
-	//
-	// }
-	fmt.Printf("%+v\n", feed.Channel)
-	// fmt.Printf("* Item: %v\n", feed.Channel.Item)
+
+	fmt.Printf("Feed: %+v\n", feed)
 	return nil
 }
