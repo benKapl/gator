@@ -11,12 +11,11 @@ type (
 		Args []string
 	}
 	commands struct {
-		registeredCommands map[string]handler
+		registeredCommands map[string]func(*state, command) error
 	}
-	handler func(*state, command) error
 )
 
-func (c *commands) register(name string, f handler) error {
+func (c *commands) register(name string, f func(*state, command) error) error {
 	if _, exists := c.registeredCommands[name]; exists {
 		return fmt.Errorf("Command %s already registered\n", name)
 	}

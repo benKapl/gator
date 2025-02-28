@@ -1,10 +1,14 @@
 package main
 
 import (
+	"database/sql"
 	"log"
 	"os"
 
+	_ "github.com/lib/pq" // PostgreSQL driver
+
 	"github.com/benKapl/gator/internal/config"
+	"github.com/benKapl/gator/internal/database"
 )
 
 func main() {
@@ -13,12 +17,20 @@ func main() {
 		log.Fatalf("error reading config: %v", err)
 	}
 
+	db, err := sql.Open("postgres", cfg.DBURL)
+	if err != nil {
+		log.Fatalf("error connecting to db: %v", err)
+	}
+
+	dbQueries := database.New(db)
+
 	programState := &state{
+		db:  dbQueries,
 		cfg: &cfg,
 	}
 
 	cmds := commands{
-		registeredCommands: make(map[string]handler),
+		registeredCommands: make(map[string]func(*state, command) error),
 	}
 	cmds.register("login", handlerLogin)
 
