@@ -13,12 +13,6 @@ import (
 )
 
 func handlerAgg(s *state, cmd command) error {
-	// feed, err := fetchFeed(context.Background(), "https://www.wagslane.dev/index.xml")
-	// if err != nil {
-	// 	return fmt.Errorf("couldn't fetch feed: %w", err)
-	// }
-
-	// fmt.Printf("Feed: %+v\n", feed)
 	if len(cmd.Args) != 1 {
 		return fmt.Errorf("usage: %s <time_between_reqs>", cmd.Name)
 	}
@@ -63,29 +57,31 @@ func scrapeFeed(s *state) {
 }
 
 func savePost(s *state, feedId uuid.UUID, feedItem RSSItem) {
-	pubDate, err := time.Parse("Mon, 02 Jan 2006 15:04:05 -0700", feedItem.PubDate)
-	if err != nil {
-		log.Printf("Couldn't parse publication date %v\n", err)
-		return
+	publishedAt := sql.NullTime{}
+	if t, err := time.Parse(time.RFC1123Z, feedItem.PubDate); err == nil {
+		publishedAt = sql.NullTime{
+			Time:  t,
+			Valid: true,
+		}
 	}
 
-	_, err = s.db.CreatePost(context.Background(), database.CreatePostParams{
+	_, err := s.db.CreatePost(context.Background(), database.CreatePostParams{
 		ID:          uuid.New(),
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
 		Title:       feedItem.Title,
 		Url:         feedItem.Link,
 		Description: toNullString(feedItem.Description),
-		PublishedAt: sql.NullTime{Time: pubDate, Valid: true},
+		PublishedAt: publishedAt,
 		FeedID:      feedId,
 	})
 
 	if err != nil {
 		if strings.Contains(err.Error(), "duplicate key value violates unique constraint") {
-
+			return
 		} else {
-			// Log other types of errors
 			log.Printf("Error creating post: %v\n", err)
+			return
 		}
 	}
 }
