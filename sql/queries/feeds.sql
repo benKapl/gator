@@ -10,5 +10,5 @@ SELECT * FROM feeds;
 SELECT * FROM feeds WHERE url = $1;
 
 -- name: MarkFeedFetched :exec
-UPDATE feeds SET last_fetched_at = $1, updated_at = $1
-WHERE id = $2;
+UPDATE feeds SET last_fetched_at = NOW(), updated_at = NOW()
+WHERE id = $1;
