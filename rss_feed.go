@@ -26,6 +26,33 @@ type RSSItem struct {
 	PubDate     string `xml:"pubDate"`
 }
 
+func scrapeFeed(s *state, ctx context.Context) error {
+	nextFeed, err := s.db.GetNextFeedToFetch(ctx)
+	fmt.Printf("next feed: %s\n", nextFeed.Name)
+	if err != nil {
+		return fmt.Errorf("couldn't identify next feed: %w", err)
+	}
+
+	err = s.db.MarkFeedFetched(ctx, nextFeed.ID)
+	if err != nil {
+		return fmt.Errorf("couldn't mark feed %s as fetched: %w", nextFeed.Name, err)
+	}
+
+	fetchedFeed, err := fetchFeed(ctx, nextFeed.Url)
+	if err != nil {
+		return fmt.Errorf("couldn't feed feed %s: %w", nextFeed.Name, err)
+	}
+
+	feedItems := fetchedFeed.Channel.Item
+
+	for _, item := range feedItems {
+		fmt.Println(item.Title)
+	}
+
+	return nil
+
+}
+
 func fetchFeed(ctx context.Context, feedUrl string) (*RSSFeed, error) {
 	req, err := http.NewRequestWithContext(ctx, "GET", feedUrl, nil)
 	if err != nil {
@@ -37,7 +64,7 @@ func fetchFeed(ctx context.Context, feedUrl string) (*RSSFeed, error) {
 	client := http.Client{Timeout: 5 * time.Second}
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("error creating request: %w", err)
+		return nil, fmt.Errorf("error making request: %w", err)
 	}
 
 	defer resp.Body.Close()
