@@ -115,6 +115,8 @@ gator <commande> <options>
    gator browse 5
    ```
 
+## Remerciements
+Un grand merci à **Lane Wagner** ([@wagslane](https://github.com/wagslane)) et son équipe chez la plateforme [**Boot.dev**](https://www.boot.dev/tracks/backend) pour ce projet guidé inspirant. Leur travail est une excellente ressource pour l'apprentissage du développement backend.
 
 ---
 Commencez dès aujourd'hui à agréger vos flux RSS préférés avec Gator ! 🐊
