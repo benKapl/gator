@@ -28,7 +28,7 @@ type RSSItem struct {
 
 func scrapeFeed(s *state, ctx context.Context) error {
 	nextFeed, err := s.db.GetNextFeedToFetch(ctx)
-	fmt.Printf("next feed: %s\n", nextFeed.Name)
+	// fmt.Printf("next feed: %s\n", nextFeed.Name)
 	if err != nil {
 		return fmt.Errorf("couldn't identify next feed: %w", err)
 	}
